@@ -10,15 +10,13 @@ module.exports = (sequelize, DataTypes) => {
     description: DataTypes.TEXT,
     estimatedTime: DataTypes.STRING,
     materialsNeeded: DataTypes.STRING,
-    createdAt: DataTypes.DATE,
-    updatedAt: DataTypes.DATE,
     userId: DataTypes.INTEGER
   }, {});
   Course.associate = function(models) {
       Course.belongsTo(models.User, {
           as: 'Courses',
           foreignKey: {
-              fieldName: 'coursesCourseId',
+              fieldName: 'UserId',
               allowNull: false,
           },
       });
