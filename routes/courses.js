@@ -8,17 +8,14 @@ var User = require('../models').User;
 const router = express.Router();
 const { check, validationResult } = require('express-validator/check');
 const authenticateUser = require('./authenticateUser');
+const auth = require('basic-auth');
 
 router.get('/courses', (req, res) => {
     var coursesArray = [];
-    Course.findAll().then(async (courses) => {
+    Course.findAll({ attributes: { exclude: ['createdAt', 'updatedAt'] } }).then(async (courses) => {
         for (var i = 0; i < courses.length; i += 1) {
-            coursesArray.push({ course: courses[i], owner: await User.findAll({ where: { id: courses[i].userId } }) } );
+            coursesArray.push({ course: courses[i], user: await User.findAll({attributes: { exclude: ['createdAt', 'updatedAt', 'password'] }, where: { id: courses[i].userId } }) } );
         };
-
-        for (var i = 0; i < coursesArray.length; i += 1) {
-            coursesArray[i].owner[0].password = null;
-        }
         res.json(coursesArray);
     });
 });
@@ -46,13 +43,10 @@ router.post('/courses', authenticateUser, [
     check('description')
         .exists({ checkNull: true, checkFalsy: true })
         .withMessage('Please provide a value for "description"'),
-    check('userId')
-        .exists({ checkNull: true, checkFalsy: true })
-        .withMessage('Please provide a value for "userId"'),
 ], (req, res) => {
-
     const errors = validationResult(req);
-
+    const credentials = auth(req);
+    
     if (!errors.isEmpty()) {
         const errorMessages = errors.array().map(error => error.msg);
 
@@ -61,13 +55,15 @@ router.post('/courses', authenticateUser, [
     Course.findAll({ where: { title: req.body.title } }).then((course) => {
         if (course.length > 0) {
             return res.status(400).json({ errors: "Course already exists." });
-        } else {
-            //course = req.body;
-        }
-        Course.create(req.body).then(course => {
-            res.status(201).redirect(`/api/courses/${course.dataValues.id}`);
+        } 
+        User.findAll({ where: { emailAddress: credentials.name } }).then((user) => {
+            req.body.userId = user[0].dataValues.id;
+            console.log(req.body);
+        }).then(() => {
+            Course.create(req.body).then(course => {
+                res.status(201).redirect(`/api/courses/${course.dataValues.id}`);
+            });
         });
-        
     });
 });
 

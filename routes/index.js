@@ -42,6 +42,8 @@ router.post('/users', [
 
         return res.status(400).json({ errors: errorMessages });
     }
+    var regExpression = /^[^@]+@[^@.]+\.[a-z]+$/i;
+    if (regExpression.test(req.body.emailAddress)) {
         User.findAll({ where: { emailAddress: req.body.emailAddress } }).then((user) => {
             if (user.length > 0) {
                 return res.status(400).json({ errors: "User already exists." });
@@ -52,6 +54,10 @@ router.post('/users', [
             User.create(user);
             res.status(201).redirect('/');
         });
+    } else {
+        return res.status(400).json({ errors: "Not a valid email address." });
+    }
+   
 });
 
 module.exports = router;
