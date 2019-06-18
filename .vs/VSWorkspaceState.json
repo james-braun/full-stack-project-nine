@@ -4,8 +4,9 @@
     "\\config",
     "\\migrations",
     "\\models",
-    "\\routes"
+    "\\routes",
+    "\\seed"
   ],
-  "SelectedNode": "\\routes\\courses.js",
+  "SelectedNode": "\\routes\\index.js",
   "PreviewInSolutionExplorer": false
 }

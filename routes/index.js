@@ -2,8 +2,8 @@
 
 const express = require('express');
 const { check, validationResult } = require('express-validator/check');
-var User = require('../models').User;
-
+const User = require('../models').User;
+const bcryptjs = require('bcryptjs');
 const authenticateUser = require('./authenticateUser');
 
 // Construct a router instance.
@@ -13,10 +13,14 @@ const router = express.Router();
 router.get('/users', authenticateUser, (req, res) => {
     const user = req.currentUser;
     res.json({
-        id: user.dataValues.id,
-        firstName: user.dataValues.firstName,
-        lastName: user.dataValues.lastName,
-        email: user.dataValues.emailAddress
+        user: [
+            {
+                id: user.dataValues.id,
+                firstName: user.dataValues.firstName,
+                lastName: user.dataValues.lastName,
+                email: user.dataValues.emailAddress
+            }
+        ]
     });
 });
 

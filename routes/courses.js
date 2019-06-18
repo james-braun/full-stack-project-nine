@@ -1,8 +1,8 @@
 'use strict'
 
 const express = require('express');
-var Course = require('../models').Course;
-var User = require('../models').User;
+const Course = require('../models').Course;
+const User = require('../models').User;
 
 // Construct a router instance.
 const router = express.Router();
@@ -21,9 +21,9 @@ router.get('/courses', (req, res) => {
 });
 
 router.get('/courses/:id', (req, res) => {
-    Course.findByPk(req.params.id).then((course) => {
+    Course.findOne({ where: { id: req.params.id }, attributes: { exclude: ['createdAt', 'updatedAt']  } }).then((course) => {
         if (course) {
-            User.findByPk(course.userId).then((user) => {
+            User.findOne({ where: { id: course.userId }, attributes: { exclude: ['createdAt', 'updatedAt', 'password']  } }).then((user) => {
                 if (user) {
                     res.json({ course, user }).end();
                 } else {
@@ -96,6 +96,8 @@ router.put('/courses/:id', authenticateUser, [
                         res.status(403).end();
                     }
                 });
+            } else {
+                res.status(400).end();
             }
         });
 });
@@ -106,7 +108,6 @@ router.delete('/courses/:id', authenticateUser, (req, res) => {
     Course.findByPk(req.params.id).then(async course => {
         if (course) {
             await User.findAll({ where: { emailAddress: credentials.name } }).then((user) => {
-                console.log(course);
                 if (user[0].dataValues.id === course.dataValues.userId) {
                     course.destroy();
                     res.status(204).end();

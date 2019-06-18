@@ -19,6 +19,7 @@ app.use(express.json());
 // setup morgan which gives us http request logging
 app.use(morgan('dev'));
 
+// test connecton to the database.
 sequelize.authenticate()
     .then(() => {
         console.log('connected to database.')
