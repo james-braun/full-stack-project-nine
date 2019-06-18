@@ -77,26 +77,43 @@ router.put('/courses/:id', authenticateUser, [
 ], (req, res) => {
 
     const errors = validationResult(req);
+    const credentials = auth(req);
+
 
     if (!errors.isEmpty()) {
         const errorMessages = errors.array().map(error => error.msg);
 
         return res.status(400).json({ errors: errorMessages });
         }
-        Course.findByPk(req.params.id).then((course) => {
+        Course.findByPk(req.params.id).then(async (course) => {
             if (course) {
-                course.update(req.body);
-                res.status(204).end();
+                await User.findAll({ where: { emailAddress: credentials.name } }).then((user) => {
+                    console.log(course);
+                    if (user[0].dataValues.id === course.dataValues.userId) {
+                        course.update(req.body);
+                        res.status(204).end();
+                    } else {
+                        res.status(403).end();
+                    }
+                });
             }
         });
 });
 
 router.delete('/courses/:id', authenticateUser, (req, res) => {
+    const credentials = auth(req);
 
-    Course.findByPk(req.params.id).then(course => {
+    Course.findByPk(req.params.id).then(async course => {
         if (course) {
-            course.destroy();
-            res.status(204).end();
+            await User.findAll({ where: { emailAddress: credentials.name } }).then((user) => {
+                console.log(course);
+                if (user[0].dataValues.id === course.dataValues.userId) {
+                    course.destroy();
+                    res.status(204).end();
+                } else {
+                    res.status(403).end();
+                }
+            });
         } else {
             res.status(500).end();
         }
