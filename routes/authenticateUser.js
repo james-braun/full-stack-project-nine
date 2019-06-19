@@ -11,7 +11,7 @@ const authenticateUser = (req, res, next) => {
     const credentials = auth(req);
 
     // if the credentials aren't null then...
-    if (credentials.name !== '' && credentials.pass !== '') {
+    if (credentials.name !== '' && credentials.pass !== '' && credentials) {
 
         // find the user that matches the email in credentails.
         User.findAll({ where: { emailAddress: credentials.name } }).then(function (user) {

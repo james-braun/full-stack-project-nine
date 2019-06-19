@@ -86,13 +86,13 @@ router.post('/courses', authenticateUser, [
             return res.status(400).json({ errors: "Course already exists." });
         } 
 
-        // find user id to match with the course. then create course and redirect to
+        // find user id to match with the course. then create course and set location to
         // course id.
         User.findAll({ where: { emailAddress: credentials.name } }).then((user) => {
             req.body.userId = user[0].dataValues.id;
         }).then(() => {
             Course.create(req.body).then(course => {
-                res.status(201).redirect(`/api/courses/${course.dataValues.id}`);
+                res.status(201).location(`/api/courses/${course.dataValues.id}`);
             });
         });
     });
