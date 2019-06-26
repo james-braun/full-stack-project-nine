@@ -68,7 +68,7 @@ router.post('/users', [
             // encrypt password and create user.
             user.password = bcryptjs.hashSync(user.password);
             User.create(user);
-            res.status(201).location('/');
+            res.status(201).location('/').end();
         });
 
     // if the email is not a valid email return error.

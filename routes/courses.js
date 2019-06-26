@@ -92,7 +92,7 @@ router.post('/courses', authenticateUser, [
             req.body.userId = user[0].dataValues.id;
         }).then(() => {
             Course.create(req.body).then(course => {
-                res.status(201).location(`/api/courses/${course.dataValues.id}`);
+                res.status(201).location(`/api/courses/${course.dataValues.id}`).end();
             });
         });
     });
